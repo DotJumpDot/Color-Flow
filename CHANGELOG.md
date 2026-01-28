@@ -4,6 +4,19 @@ All notable changes to Color Flow will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [1.2.3] - 2026-01-28
+
+### Changed
+
+- **Documentation Overhaul**: Completely redesigned README.md with professional formatting, including:
+  - Enhanced visual styling with emojis and centered header
+  - Improved badge section with VS Marketplace-specific metrics
+  - Better structure with dedicated sections for extension info, configuration, and technical details
+  - Added Mermaid flowchart for "How It Works" section
+  - New performance section highlighting extension optimizations
+  - Comprehensive roadmap with planned features
+  - Professional footer with support resources and back-to-top navigation
+
 ## [1.2.2] - 2026-01-28
 
 ### Added
