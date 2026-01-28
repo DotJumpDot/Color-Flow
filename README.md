@@ -1,6 +1,6 @@
 # Color Flow
 
-[![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)](https://github.com/DotJumpDot/Color-Flow)
+[![Version](https://img.shields.io/badge/version-1.2.2-blue.svg)](https://github.com/DotJumpDot/Color-Flow)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![VS Code](https://img.shields.io/badge/VS%20Code-1.74.0%2B-blue.svg)](https://code.visualstudio.com/)
 
@@ -10,7 +10,7 @@ Visualize inline CSS colors in HTML documents with configurable background highl
 
 ![Color Flow Demo](./assets/demo.gif)
 
-*Watch how Color Flow automatically highlights inline CSS colors in real-time as you type*
+_Watch how Color Flow automatically highlights inline CSS colors in real-time as you type_
 
 ## Features
 
@@ -70,10 +70,10 @@ Click the status bar item to quickly access Color Flow settings.
 
 ### Commands
 
-| Command | Description |
-|----------|-------------|
-| `Color Flow: Open Settings` | Open extension settings page |
-| `Color Flow: Toggle Highlighting` | Toggle color highlighting on/off |
+| Command                           | Description                        |
+| --------------------------------- | ---------------------------------- |
+| `Color Flow: Open Settings`       | Open extension settings page       |
+| `Color Flow: Toggle Highlighting` | Toggle color highlighting on/off   |
 | `Color Flow: Refresh Decorations` | Manually refresh color decorations |
 
 ## Configuration

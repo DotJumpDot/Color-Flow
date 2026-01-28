@@ -4,6 +4,12 @@ All notable changes to Color Flow will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [1.2.2] - 2026-01-28
+
+### Added
+
+- **New Assets**: Added new extension icon and demo animation to better showcase extension features
+
 ## [1.2.1] - 2026-01-28
 
 ### Fixed

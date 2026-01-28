@@ -2,8 +2,9 @@
   "name": "color-flow",
   "displayName": "Color Flow",
   "description": "Visualize inline CSS colors in HTML documents with configurable background highlighting",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "publisher": "DotJumpDot",
+  "icon": "assets/icon.png",
   "engines": {
     "vscode": "^1.74.0"
   },
