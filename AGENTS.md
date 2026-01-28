@@ -1,6 +1,6 @@
 # Color Flow - API Documentation
 
-This document provides detailed documentation for the main functions and modules in the Color Flow extension.
+This document provides detailed documentation for main functions and modules in Color Flow extension.
 
 ## Table of Contents
 
@@ -49,7 +49,7 @@ Validates whether a string represents a valid color.
 
 **Returns:**
 
-- `boolean`: True if the color is valid, false otherwise
+- `boolean`: True if color is valid, false otherwise
 
 **Example:**
 
@@ -187,6 +187,13 @@ Parses an HTML document and extracts elements with inline styles.
   - `elements`: Array of all parsed HTMLElement objects
   - `root`: Root element of the HTML tree
 
+**Implementation Details:**
+
+- Uses `document.positionAt()` for accurate character-based positioning
+- Captures `startIndex` and `endIndex` from htmlparser2 for precise range calculation
+- Handles multiline text content correctly
+- Supports HTML, PHP, Vue, Svelte, TSX, and JSX files
+
 **Example:**
 
 ```typescript
@@ -209,7 +216,7 @@ Filters elements that have a specific color type defined.
 
 **Returns:**
 
-- `HTMLElement[]`: Array of elements with the specified color type
+- `HTMLElement[]`: Array of elements with specified color type
 
 **Example:**
 
@@ -286,6 +293,7 @@ Returns a copy of current extension settings.
 ```typescript
 const settings = settingsManager.getSettings();
 console.log(settings.opacity); // e.g., 0.2
+console.log(settings.enabled); // e.g., true
 ```
 
 ---
@@ -368,11 +376,88 @@ Applies color decorations to elements in the editor.
 - `elements` (HTMLElement[]): Array of parsed HTML elements
 - `settings` (ColorFlowSettings): Current extension settings
 
+**Behavior:**
+
+- Checks `settings.enabled` - if false, clears all decorations and returns
+- Processes elements with inline styles containing color or background-color properties
+- Groups decorations by color for efficient rendering
+- Caches decoration types to avoid recreation
+
 **Example:**
 
 ```typescript
 decorationManager.applyDecorations(editor, elements, settings);
 ```
+
+---
+
+### `getRangesForElement(document: vscode.TextDocument, element: HTMLElement, mode: HighlightMode): vscode.Range[]`
+
+Determines the ranges to highlight based on the selected highlight mode.
+
+**Parameters:**
+
+- `document` (vscode.TextDocument): The text document
+- `element` (HTMLElement): Parsed HTML element
+- `mode` (HighlightMode): The highlight mode to use
+
+**Returns:**
+
+- `vscode.Range[]`: Array of ranges to decorate
+
+**Highlight Modes:**
+
+- **full-line**: Returns ranges for each complete line the element spans (column 0 to end of line)
+- **word-only**: Returns separate ranges for each word, skipping whitespace between them
+- **char-range**: Returns a single range for the element's text content with whitespace trimmed
+
+**Example:**
+
+```typescript
+const ranges = decorationManager.getRangesForElement(document, element, "word-only");
+```
+
+---
+
+### `getWordRanges(document: vscode.TextDocument, range: vscode.Range, text: string): vscode.Range[]`
+
+Extracts individual word ranges from a text range.
+
+**Parameters:**
+
+- `document` (vscode.TextDocument): The text document
+- `range` (vscode.Range): The range to search within
+- `text` (string): The text content to parse
+
+**Returns:**
+
+- `vscode.Range[]`: Array of ranges for each word
+
+**Implementation:**
+
+- Uses regex `/\S+/g` to find non-whitespace sequences
+- Calculates precise character offsets using `document.offsetAt()` and `document.positionAt()`
+
+---
+
+### `trimWhitespaceRange(document: vscode.TextDocument, range: vscode.Range, text: string): vscode.Range`
+
+Trims leading and trailing whitespace from a range.
+
+**Parameters:**
+
+- `document` (vscode.TextDocument): The text document
+- `range` (vscode.Range): The range to trim
+- `text` (string): The text content
+
+**Returns:**
+
+- `vscode.Range`: Trimmed range
+
+**Implementation:**
+
+- Handles multiline text correctly using character offsets
+- Returns original range if trimming would result in invalid range
 
 ---
 
@@ -394,7 +479,7 @@ decorationManager.clearDecorations(editor);
 
 ### `clearCache(): void`
 
-Clears the decoration cache and disposes all decoration types.
+Clears the decoration cache and disposes of all decoration types.
 
 **Example:**
 
@@ -429,9 +514,20 @@ Main activation function called when the extension is loaded.
 **Behavior:**
 
 - Initializes settings and decoration managers
-- Registers event listeners for document changes
+- Creates and configures status bar item with enabled/disabled state indicator
+- Registers event listeners for document changes and active editor changes
 - Registers commands (openSettings, toggle, refresh)
-- Applies decorations to active editor
+- Applies decorations to the active editor on startup
+- Updates status bar when settings change
+
+**Supported Languages:**
+
+- HTML
+- PHP
+- Vue
+- Svelte
+- TypeScript React (typescriptreact)
+- JavaScript React (javascriptreact)
 
 **Example:**
 
@@ -449,7 +545,7 @@ Cleanup function called when the extension is deactivated.
 
 **Behavior:**
 
-- Clears pending timeouts
+- Clears pending update timeouts
 - Disposes of settings and decoration managers
 
 **Example:**
@@ -518,12 +614,12 @@ interface HTMLElement {
 
 ```typescript
 interface ColorFlowSettings {
+  enabled: boolean;
   opacity: number;
   enableBorder: boolean;
   borderColor: string;
   borderRadius: string;
   highlightMode: "full-line" | "word-only" | "char-range";
-  enabled: boolean;
 }
 ```
 
@@ -532,3 +628,24 @@ interface ColorFlowSettings {
 ```typescript
 type HighlightMode = "full-line" | "word-only" | "char-range";
 ```
+
+---
+
+## Architecture Overview
+
+Color Flow is built with a modular architecture:
+
+1. **ColorConverter**: Handles color parsing and conversion to RGBA format
+2. **StyleParser**: Parses CSS style strings and extracts color properties
+3. **HTMLParser**: Parses HTML documents using htmlparser2 and tracks accurate positions
+4. **SettingsManager**: Manages extension configuration and change events
+5. **DecorationManager**: Applies VS Code text decorations based on parsed elements and settings
+6. **Extension Entry Point**: Coordinates all components and manages VS Code lifecycle
+
+### Key Design Decisions
+
+- **Character-based Positioning**: Uses `document.positionAt()` instead of manual line/column counting for accuracy
+- **Decoration Caching**: Reuses `vscode.TextEditorDecorationType` objects for performance
+- **Debounced Updates**: Uses 100ms timeout to avoid excessive decorations during typing
+- **Supported Languages Filter**: Checks `languageId` before processing to avoid unsupported file types
+- **Status Bar Integration**: Provides visual feedback and quick access to settings

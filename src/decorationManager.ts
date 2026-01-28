@@ -38,9 +38,9 @@ export class DecorationManager {
         continue;
       }
 
-      const range = this.getRangeForElement(element, settings.highlightMode);
+      const ranges = this.getRangesForElement(editor.document, element, settings.highlightMode);
 
-      if (!range) {
+      if (ranges.length === 0) {
         continue;
       }
 
@@ -48,7 +48,7 @@ export class DecorationManager {
         decorationsByColor.set(backgroundColor, []);
       }
 
-      decorationsByColor.get(backgroundColor)!.push(range);
+      decorationsByColor.get(backgroundColor)!.push(...ranges);
     }
 
     this.clearDecorations(editor);
@@ -59,43 +59,78 @@ export class DecorationManager {
     }
   }
 
-  private getRangeForElement(element: HTMLElement, mode: HighlightMode): vscode.Range | null {
+  private getRangesForElement(
+    document: vscode.TextDocument,
+    element: HTMLElement,
+    mode: HighlightMode
+  ): vscode.Range[] {
     switch (mode) {
       case "full-line":
-        return new vscode.Range(
-          new vscode.Position(element.startPosition.line, 0),
-          new vscode.Position(element.endPosition.line, 0)
-        );
+        const ranges: vscode.Range[] = [];
+        for (let i = element.startPosition.line; i <= element.endPosition.line; i++) {
+          const line = document.lineAt(i);
+          ranges.push(line.rangeIncludingLineBreak);
+        }
+        return ranges;
 
       case "word-only":
         const textRange = getElementTextRange(element);
-        if (!textRange) {
-          return null;
+        if (!textRange || !element.textContent) {
+          return [];
         }
-        return this.trimWhitespaceRange(textRange, element.textContent || "");
+        return this.getWordRanges(document, textRange, element.textContent);
 
       case "char-range":
       default:
-        return getElementTextRange(element);
+        const charRange = getElementTextRange(element);
+        if (!charRange) {
+          return [];
+        }
+        return [this.trimWhitespaceRange(document, charRange, element.textContent || "")];
     }
   }
 
-  private trimWhitespaceRange(range: vscode.Range, text: string): vscode.Range {
-    const trimmedText = text.trimLeft();
-    const leadingWhitespace = text.length - trimmedText.length;
-    const trailingWhitespace = trimmedText.trimRight().length - trimmedText.length;
+  private getWordRanges(
+    document: vscode.TextDocument,
+    range: vscode.Range,
+    text: string
+  ): vscode.Range[] {
+    const ranges: vscode.Range[] = [];
+    const baseOffset = document.offsetAt(range.start);
 
-    const startOffset = leadingWhitespace;
-    const endOffset = text.length - trailingWhitespace;
+    // Regex to find words (non-whitespace characters)
+    const wordRegex = /\S+/g;
+    let match;
 
-    const startPosition = new vscode.Position(
-      range.start.line,
-      range.start.character + startOffset
-    );
+    while ((match = wordRegex.exec(text)) !== null) {
+      const startOffset = baseOffset + match.index;
+      const endOffset = startOffset + match[0].length;
+      ranges.push(
+        new vscode.Range(document.positionAt(startOffset), document.positionAt(endOffset))
+      );
+    }
 
-    const endPosition = new vscode.Position(range.end.line, range.start.character + endOffset);
+    return ranges;
+  }
 
-    return new vscode.Range(startPosition, endPosition);
+  private trimWhitespaceRange(
+    document: vscode.TextDocument,
+    range: vscode.Range,
+    text: string
+  ): vscode.Range {
+    const trimmedLeft = text.trimStart();
+    const leadingWhitespaceCount = text.length - trimmedLeft.length;
+    const trimmedBoth = trimmedLeft.trimEnd();
+    const trailingWhitespaceCount = trimmedLeft.length - trimmedBoth.length;
+
+    const startOffset = document.offsetAt(range.start) + leadingWhitespaceCount;
+    const endOffset = document.offsetAt(range.end) - trailingWhitespaceCount;
+
+    if (startOffset >= endOffset) {
+      return range;
+    }
+
+    return new vscode.Range(document.positionAt(startOffset), document.positionAt(endOffset));
   }
 
   private getOrCreateDecoration(

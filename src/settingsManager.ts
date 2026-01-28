@@ -31,7 +31,7 @@ export class SettingsManager {
       borderColor: config.get<string>("borderColor", "currentColor"),
       borderRadius: config.get<string>("borderRadius", "0px"),
       highlightMode: config.get<HighlightMode>("highlightMode", "char-range"),
-      enabled: true,
+      enabled: config.get<boolean>("enabled", true),
     };
   }
 

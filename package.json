@@ -2,7 +2,7 @@
   "name": "color-flow",
   "displayName": "Color Flow",
   "description": "Visualize inline CSS colors in HTML documents with configurable background highlighting",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "publisher": "DotJumpDot",
   "engines": {
     "vscode": "^1.74.0"
@@ -26,6 +26,8 @@
     "onLanguage:php",
     "onLanguage:vue",
     "onLanguage:svelte",
+    "onLanguage:typescriptreact",
+    "onLanguage:javascriptreact",
     "onStartupFinished"
   ],
   "main": "./out/extension.js",
@@ -47,6 +49,11 @@
     "configuration": {
       "title": "Color Flow",
       "properties": {
+        "colorFlow.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable color highlighting in HTML documents"
+        },
         "colorFlow.opacity": {
           "type": "number",
           "default": 0.2,
@@ -62,7 +69,7 @@
         "colorFlow.borderColor": {
           "type": "string",
           "default": "currentColor",
-          "description": "Border color for highlighted text (e.g., '#000000', 'red', 'rgba(0,0,0,0.5)')"
+          "description": "Border color for highlighted text (e.g., 'currentColor', '#000000', 'red', 'rgba(0,0,0,0.5)')"
         },
         "colorFlow.borderRadius": {
           "type": "string",
@@ -91,13 +98,15 @@
     "vscode:prepublish": "npm run compile",
     "compile": "tsc -p ./",
     "watch": "tsc -watch -p ./",
-    "pretest": "npm run compile && npm run lint",
+    "compile-tests": "tsc -p ./tsconfig.test.json",
+    "pretest": "npm run compile && npm run compile-tests",
     "lint": "eslint src --ext ts",
-    "test": "node ./out/test/runTest.js"
+    "test": "node ./test/runTest.js"
   },
   "devDependencies": {
-    "@types/vscode": "^1.74.0",
     "@types/node": "16.x",
+    "@types/tinycolor2": "^1.4.6",
+    "@types/vscode": "^1.74.0",
     "@typescript-eslint/eslint-plugin": "^5.53.0",
     "@typescript-eslint/parser": "^5.53.0",
     "eslint": "^8.34.0",

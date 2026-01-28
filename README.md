@@ -1,6 +1,6 @@
 # Color Flow
 
-[![Version](https://img.shields.io/badge/version-0.1.0-blue.svg)](https://github.com/DotJumpDot/Color-Flow)
+[![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)](https://github.com/DotJumpDot/Color-Flow)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![VS Code](https://img.shields.io/badge/VS%20Code-1.74.0%2B-blue.svg)](https://code.visualstudio.com/)
 
@@ -8,12 +8,14 @@ Visualize inline CSS colors in HTML documents with configurable background highl
 
 ## Features
 
-- Color Flow automatically detects and highlights inline CSS colors in your HTML documents
+- Color Flow automatically detects and highlights inline CSS colors in your documents
 - Supports multiple color formats: named colors, hex, rgb/rgba, hsl/hsla
 - Configurable highlighting modes: full-line, word-only, or character-range
 - Customizable opacity, borders, and border radius
 - Real-time updates as you type
-- Toggle extension on/off with a single command
+- Toggle extension on/off with a single command or status bar
+- Status bar indicator showing current extension state
+- Support for multiple file types: HTML, PHP, Vue, Svelte, TSX, JSX
 
 ## Supported Languages
 
@@ -21,6 +23,8 @@ Visualize inline CSS colors in HTML documents with configurable background highl
 - PHP
 - Vue
 - Svelte
+- TypeScript React (.tsx)
+- JavaScript React (.jsx)
 
 ## Installation
 
@@ -39,7 +43,7 @@ Visualize inline CSS colors in HTML documents with configurable background highl
 
 ## Usage
 
-Once installed, Color Flow automatically highlights colors in HTML documents with inline styles:
+Once installed, Color Flow automatically highlights colors in documents with inline styles:
 
 ```html
 <div style="color: blue">
@@ -49,11 +53,20 @@ Once installed, Color Flow automatically highlights colors in HTML documents wit
 
 The extension will apply a semi-transparent background color to match the specified color value.
 
+### Status Bar
+
+Look for the Color Flow icon in the bottom-left status bar:
+
+- When enabled: `$(symbol-color) Color Flow`
+- When disabled: `$(symbol-color) Color Flow $(circle-slash)`
+
+Click the status bar item to quickly access Color Flow settings.
+
 ### Commands
 
 | Command | Description |
 |----------|-------------|
-| `Color Flow: Open Settings` | Open the extension settings page |
+| `Color Flow: Open Settings` | Open extension settings page |
 | `Color Flow: Toggle Highlighting` | Toggle color highlighting on/off |
 | `Color Flow: Refresh Decorations` | Manually refresh color decorations |
 
@@ -61,9 +74,23 @@ The extension will apply a semi-transparent background color to match the specif
 
 Color Flow provides several configuration options to customize your experience:
 
+### Enable Highlighting
+
+Controls whether color highlighting is active.
+
+- **Type:** Boolean
+- **Default:** true
+- **Example:** false to disable highlighting temporarily
+
+```json
+{
+  "colorFlow.enabled": false
+}
+```
+
 ### Opacity
 
-Controls the transparency of the background color highlight.
+Controls transparency of background color highlight.
 
 - **Type:** Number (0-1)
 - **Default:** 0.2
@@ -90,7 +117,7 @@ Adds a border around highlighted text.
 
 ### Border Color
 
-Sets the color of the border (when enabled).
+Sets color of border (when enabled).
 
 - **Type:** String
 - **Default:** "currentColor"
@@ -104,7 +131,7 @@ Sets the color of the border (when enabled).
 
 ### Border Radius
 
-Controls the roundness of border corners.
+Controls roundness of border corners.
 
 - **Type:** String
 - **Default:** "0px"
@@ -122,9 +149,9 @@ Determines how much of the text to highlight.
 
 - **Type:** Enum
 - **Options:**
-  - `full-line`: Highlight the entire line
-  - `word-only`: Highlight from first non-space to last non-space character
-  - `char-range`: Highlight the exact element text range (default)
+  - `full-line`: Highlights entire line(s) from start to end
+  - `word-only`: Highlights individual words, skipping spaces between them
+  - `char-range`: Highlights the exact element text range, trimming whitespace (default)
 - **Default:** `char-range`
 
 ```json
@@ -144,21 +171,23 @@ Color Flow recognizes the following color formats:
 
 ## How It Works
 
-Color Flow parses HTML documents and:
+Color Flow parses documents and:
 
 1. Identifies elements with inline `style` attributes
 2. Extracts color-related properties (`color`, `background-color`, `backgroundColor`)
 3. Converts color values to RGBA format with configured opacity
-4. Applies background decorations to matching text ranges
+4. Applies background decorations to matching text ranges based on selected highlight mode
 5. Updates decorations in real-time as you edit
 
 ## Limitations
 
 Color Flow currently supports:
+
 - Inline styles only (`style="..."` attributes)
 - Direct color values (no CSS variables or class-based styles)
 
 Not supported:
+
 - CSS class definitions (`.class { color: red; }`)
 - CSS variables (`var(--my-color)`)
 - External CSS files
@@ -175,7 +204,7 @@ Contributions are welcome! Please feel free to submit issues and pull requests.
 2. Install dependencies: `npm install`
 3. Compile TypeScript: `npm run compile`
 4. Run tests: `npm test`
-5. Press F5 in VS Code to launch extension in debug mode
+5. Press F5 in VS Code to launch the extension in debug mode
 
 ## License
 
@@ -186,6 +215,7 @@ Copyright (c) 2026 DotJumpDot
 ## Credits
 
 Built with:
+
 - [htmlparser2](https://github.com/fb55/htmlparser2) - Fast and forgiving HTML/XML parser
 - [tinycolor2](https://github.com/bgrins/TinyColor) - Color manipulation and conversion
 
@@ -193,3 +223,4 @@ Built with:
 
 - Report issues: [GitHub Issues](https://github.com/DotJumpDot/Color-Flow/issues)
 - Documentation: [AGENTS.md](AGENTS.md) - API documentation for developers
+- Changelog: [CHANGELOG.md](CHANGELOG.md) - Version history and changes

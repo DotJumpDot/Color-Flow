@@ -31,23 +31,10 @@ export function parseHTMLDocument(document: vscode.TextDocument): ParseResult {
   const elementStack: HTMLElement[] = [];
   let root: HTMLElement | null = null;
 
-  let currentLine = 0;
-  let currentColumn = 0;
-
-  const updatePosition = (data: string) => {
-    for (let i = 0; i < data.length; i++) {
-      if (data[i] === "\n") {
-        currentLine++;
-        currentColumn = 0;
-      } else {
-        currentColumn++;
-      }
-    }
-  };
-
-  const handler: Handler = {
+  const handler: Partial<Handler> = {
     onopentag(name, attribs) {
-      const position = new vscode.Position(currentLine, currentColumn);
+      const startIndex = parser.startIndex;
+      const position = document.positionAt(startIndex);
 
       const styles = attribs.style ? parseStyle(attribs.style) : {};
       const colors = extractColorProperties(styles);
@@ -78,22 +65,21 @@ export function parseHTMLDocument(document: vscode.TextDocument): ParseResult {
     },
 
     ontext(data) {
-      const textStartPosition = new vscode.Position(currentLine, currentColumn);
-      updatePosition(data);
-      const textEndPosition = new vscode.Position(currentLine, currentColumn);
-
       if (elementStack.length > 0) {
         const currentElement = elementStack[elementStack.length - 1];
+        const startIndex = parser.startIndex;
+        const endIndex = parser.endIndex + 1;
 
-        if (currentElement.textContent === undefined) {
+        const textStartPosition = document.positionAt(startIndex);
+        const textEndPosition = document.positionAt(endIndex);
+
+        if (currentElement.textStartPosition === undefined) {
           currentElement.textContent = data;
           currentElement.textStartPosition = textStartPosition;
           currentElement.textEndPosition = textEndPosition;
         } else {
-          currentElement.textContent += data;
-          if (currentElement.textEndPosition) {
-            currentElement.textEndPosition = textEndPosition;
-          }
+          currentElement.textContent = (currentElement.textContent || "") + data;
+          currentElement.textEndPosition = textEndPosition;
         }
       }
     },
@@ -102,7 +88,8 @@ export function parseHTMLDocument(document: vscode.TextDocument): ParseResult {
       if (elementStack.length > 0) {
         const element = elementStack.pop();
         if (element) {
-          element.endPosition = new vscode.Position(currentLine, currentColumn);
+          const endIndex = parser.endIndex + 1;
+          element.endPosition = document.positionAt(endIndex);
         }
       }
     },

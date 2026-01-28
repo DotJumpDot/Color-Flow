@@ -1,4 +1,4 @@
-import * as tinycolor from "tinycolor2";
+import tinycolor from "tinycolor2";
 
 export interface RGBAColor {
   r: number;
@@ -9,7 +9,7 @@ export interface RGBAColor {
 
 export function convertToRGBA(colorString: string, opacity: number): string | null {
   try {
-    const color = tinycolor(colorString);
+    const color = new tinycolor(colorString);
 
     if (!color.isValid()) {
       return null;
@@ -26,7 +26,7 @@ export function convertToRGBA(colorString: string, opacity: number): string | nu
 
 export function isValidColor(colorString: string): boolean {
   try {
-    return tinycolor(colorString).isValid();
+    return new tinycolor(colorString).isValid();
   } catch (error) {
     return false;
   }
@@ -34,7 +34,7 @@ export function isValidColor(colorString: string): boolean {
 
 export function parseColor(colorString: string): RGBAColor | null {
   try {
-    const color = tinycolor(colorString);
+    const color = new tinycolor(colorString);
 
     if (!color.isValid()) {
       return null;
